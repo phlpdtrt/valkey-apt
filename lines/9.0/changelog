@@ -1,0 +1,7 @@
+valkey (9.0.4-1) unstable; urgency=medium
+
+  * Initial tracking of the 9.0 line in valkey-apt (multi-version project).
+  * Patch baseline: copied unmodified from the 9.1 line as a starting point.
+    NOT yet verified against a 9.0.x checkout — see patches/NOTES.md.
+
+ -- Philipp Dittert <p.dittert@techdivision.com>  Thu, 09 Jul 2026 00:00:00 +0000

@@ -1,0 +1,226 @@
+name: Build repository release
+
+permissions:
+  contents: read
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      lines:
+        description: "Comma-separated tracked-lines.yaml keys to (re)build, or 'all' for every active line"
+        default: "all"
+        required: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      os_matrix: ${{ steps.releases.outputs.os_matrix }}
+      line_matrix: ${{ steps.lines.outputs.line_matrix }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Load Supported Releases
+        id: releases
+        run: |
+          set -eu
+          mapfile -t releases < <(grep -E '^[a-z]+:[a-z0-9]+$' .github/supported-releases.txt)
+          if [ "${#releases[@]}" -eq 0 ]; then
+            echo "No supported releases found in .github/supported-releases.txt"
+            exit 1
+          fi
+          os_matrix="$(printf '%s\n' "${releases[@]}" | jq -R . | jq -s -c .)"
+          echo "os_matrix=${os_matrix}" >> "$GITHUB_OUTPUT"
+
+      - name: Load Tracked Lines
+        id: lines
+        run: |
+          set -eu
+          requested="${{ github.event.inputs.lines || 'all' }}"
+          line_matrix="$(python3 - "$requested" <<'PY'
+          import sys, json, yaml
+          requested = sys.argv[1]
+          data = yaml.safe_load(open("tracked-lines.yaml"))
+          wanted = None if requested == "all" else {s.strip() for s in requested.split(",") if s.strip()}
+          out = []
+          for name, cfg in data["lines"].items():
+              if cfg.get("status") != "active":
+                  continue
+              if wanted is not None and name not in wanted:
+                  continue
+              out.append({
+                  "name": name,
+                  "tag": cfg["tag"],
+                  "debian_revision": cfg.get("debian_revision", 1),
+              })
+          print(json.dumps(out))
+          PY
+          )"
+          if [ "$(echo "$line_matrix" | jq 'length')" -eq 0 ]; then
+            echo "No matching active lines for input '${requested}'" >&2
+            exit 1
+          fi
+          echo "line_matrix=${line_matrix}" >> "$GITHUB_OUTPUT"
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        line: ${{ fromJson(needs.prepare.outputs.line_matrix) }}
+        os-version: ${{ fromJson(needs.prepare.outputs.os_matrix) }}
+        arch: ["amd64", "arm64"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: valkey-io/valkey
+          ref: refs/tags/${{ matrix.line.tag }}
+          submodules: "recursive"
+
+      - uses: actions/checkout@v7
+        with:
+          path: build-debian
+
+      - name: Extract OS Flavor, Version and Package Version
+        id: extract-os
+        run: |
+          os_version="${{ matrix.os-version }}"
+          echo "flavor=${os_version%%:*}" >> "$GITHUB_ENV"
+          echo "debian_release=${os_version##*:}" >> "$GITHUB_ENV"
+          echo "pkg_version=${{ matrix.line.tag }}-${{ matrix.line.debian_revision }}~${os_version##*:}1" >> "$GITHUB_ENV"
+
+      - uses: jtdor/build-deb-action@v1.9.1
+        env:
+          DEB_BUILD_OPTIONS: noautodbgsym
+        with:
+          docker-image: "${{ matrix.os-version }}"
+          host-arch: "${{ matrix.arch }}"
+          setup-hook: |
+            export DEBIAN_FRONTEND=noninteractive
+            os_version="${{ matrix.os-version }}"
+            flavor=${os_version%%:*}
+            arch="${{ matrix.arch }}"
+            if [ "$flavor" = "ubuntu" ] && [ "$arch" = "arm64" ]; then
+              # check for deb822 source format
+              if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+                cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu-arm.sources
+                sed -i 's,[a-z]*.ubuntu.com,ports.ubuntu.com,' /etc/apt/sources.list.d/ubuntu-arm.sources
+                sed -i 's,/ubuntu/$,/ubuntu-ports/,' /etc/apt/sources.list.d/ubuntu-arm.sources
+                sed -i 's/^Components:/Architectures: arm64\nComponents:/' /etc/apt/sources.list.d/ubuntu-arm.sources
+                sed -i 's/^Components:/Architectures: amd64\nComponents:/' /etc/apt/sources.list.d/ubuntu.sources
+              else
+                cp /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu-arm.list
+                sed -i 's/^deb /deb [arch=amd64] /' /etc/apt/sources.list
+                sed -i 's,[a-z]*.ubuntu.com,ports.ubuntu.com,' /etc/apt/sources.list.d/ubuntu-arm.list
+                sed -i 's,/ubuntu/ ,/ubuntu-ports/ ,' /etc/apt/sources.list.d/ubuntu-arm.list
+                sed -i 's/^deb /deb [arch=arm64] /' /etc/apt/sources.list.d/ubuntu-arm.list
+                cat /etc/apt/sources.list  /etc/apt/sources.list.d/ubuntu-arm.list
+              fi
+            fi
+            if [ "$os_version" = "debian:bullseye" ]; then
+              # update autoconf for bullseye
+              apt-get -q update
+              apt-get install -y --no-install-recommends wget ca-certificates
+              wget -q -O /tmp/autoconf_2.71-3_all.deb http://ftp.us.debian.org/debian/pool/main/a/autoconf/autoconf_2.71-3_all.deb
+              dpkg --force-depends -i /tmp/autoconf_2.71-3_all.deb
+              apt-get -f install -y
+            fi
+
+            if [ "$arch" = "arm64" ]; then
+              dpkg --add-architecture arm64
+              apt-get update
+              apt-get install -y libatomic1:arm64
+            fi
+
+            /github/workspace/build-debian/bin/materialize-debian.sh "${{ matrix.line.name }}" /github/workspace
+          extra-build-deps: "devscripts git dpkg-cross"
+          before-build-hook: "DEBEMAIL='GitHub Actions <github-actions@users.noreply.github.com>' dch -v ${{ env.pkg_version }} 'GitHub build of valkey ${{ matrix.line.tag }} (line ${{ matrix.line.name }}) for ${{ matrix.os-version }}'"
+          buildpackage-opts: --build=binary --no-sign -d
+
+      - name: Upload deb files
+        uses: actions/upload-artifact@v7
+        with:
+          name: "packages-${{ matrix.line.name }}-${{ env.debian_release }}-${{ matrix.arch }}"
+          path: ./debian/artifacts/*
+
+  merge-artefacts:
+    name: Merge all deb files to single artifact
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: debian-packages
+        uses: actions/upload-artifact/merge@v7
+
+  add_release:
+    name: Add package to release
+    needs: merge-artefacts
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: merged-artifacts
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: ./*.deb
+
+  publish:
+    name: Publish to the multi-version APT repository
+    runs-on: ubuntu-latest
+    needs:
+      - merge-artefacts
+    permissions:
+      contents: write
+    # Serialize every publish (cron-triggered or manual) against the shared
+    # gh-pages pool - concurrent read-modify-write of the pool/Packages/Release
+    # tree would corrupt it now that multiple lines are retained in parallel.
+    concurrency:
+      group: apt-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: build-debian
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: merged-artifacts
+          path: incoming
+
+      - uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: repo
+
+      - name: Import signing key
+        id: gpg
+        run: |
+          set -eu
+          echo "${{ secrets.APT_SIGNING_KEY }}" | gpg --batch --import
+          key_id="$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5; exit}')"
+          echo "key_id=${key_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Ingest + regenerate indices
+        run: |
+          build-debian/bin/publish-repo.sh repo incoming --gpg-key "${{ steps.gpg.outputs.key_id }}"
+
+      - name: Commit and push updated repo
+        run: |
+          set -eu
+          cd repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "Publish: ${{ github.event.inputs.lines || 'all' }}"
+            git push origin gh-pages
+          fi

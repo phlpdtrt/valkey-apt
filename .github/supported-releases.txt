@@ -1,0 +1,5 @@
+debian:bullseye
+debian:bookworm
+debian:trixie
+ubuntu:jammy
+ubuntu:noble

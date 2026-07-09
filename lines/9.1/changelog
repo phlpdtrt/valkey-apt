@@ -1,0 +1,9 @@
+valkey (9.1.0-1) unstable; urgency=medium
+
+  * Initial tracking of the 9.1 line in valkey-apt (multi-version project).
+  * Patch baseline: carried over as-is from the greenSec valkey-debian repo
+    at the point it was last refreshed for 9.1.0 compatibility (jemalloc
+    patch reworked, upstreamed CVE patch dropped). This is the verified
+    baseline all other lines were seeded from.
+
+ -- Philipp Dittert <p.dittert@techdivision.com>  Thu, 09 Jul 2026 00:00:00 +0000

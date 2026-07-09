@@ -1,0 +1,45 @@
+# Single source of truth for which Valkey major.minor lines this project
+# builds and publishes in parallel. See README.md "Architecture" section.
+#
+# lines.<line>.tag              - upstream git tag currently packaged for this line
+# lines.<line>.debian_revision  - Debian revision (-N), bumped on packaging-only
+#                                  fixes, reset to 1 on every new upstream tag
+# lines.<line>.status           - active: built by CI and checked by the daily
+#                                  upstream-check cron
+#                                  eol: no longer rebuilt/checked, but the last
+#                                  built .deb stays published so pinned users
+#                                  don't lose the ability to reinstall/upgrade
+# lines.<line>.lts              - true pins a line as always-kept regardless of
+#                                  the default retirement rule (see README)
+#
+# default: the line advertised as "recommended" in add-repository.sh/README;
+# also the line a bare `apt-get install valkey-server` resolves to, since with
+# no pin apt always installs the highest-sorting available version.
+#
+# Values below reflect the real upstream tags at the time this project was
+# scaffolded (2026-07-09, https://github.com/valkey-io/valkey/tags). Verify
+# they are still current before the first real build.
+
+default: "9.1"
+
+lines:
+  "9.1":
+    tag: "9.1.0"
+    debian_revision: 1
+    status: active
+    lts: false
+  "9.0":
+    tag: "9.0.4"
+    debian_revision: 1
+    status: active
+    lts: false
+  "8.1":
+    tag: "8.1.8"
+    debian_revision: 1
+    status: active
+    lts: false
+  "8.0":
+    tag: "8.0.9"
+    debian_revision: 1
+    status: active
+    lts: false

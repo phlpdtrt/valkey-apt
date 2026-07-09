@@ -1,0 +1,108 @@
+name: cron-check-upstream
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check_upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check each active line for a newer upstream patch tag
+        id: check
+        run: |
+          set -eu
+          mapfile -t tags < <(git ls-remote --tags --refs https://github.com/valkey-io/valkey.git \
+            | sed 's#.*refs/tags/##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$')
+
+          python3 - "${tags[@]}" <<'PY'
+          import sys, yaml, json
+
+          tags = sys.argv[1:]
+          path = "tracked-lines.yaml"
+          data = yaml.safe_load(open(path))
+
+          def ver_key(v):
+              return tuple(int(p) for p in v.split("."))
+
+          # Highest patch tag currently on GitHub, per major.minor line.
+          latest_per_line = {}
+          for t in tags:
+              major, minor, _ = t.split(".")
+              line = f"{major}.{minor}"
+              if line not in latest_per_line or ver_key(t) > ver_key(latest_per_line[line]):
+                  latest_per_line[line] = t
+
+          bumped = []
+          for line, cfg in data["lines"].items():
+              if cfg.get("status") != "active":
+                  continue
+              newest = latest_per_line.get(line)
+              if newest and newest != cfg["tag"]:
+                  print(f"Bumping {line}: {cfg['tag']} -> {newest}", file=sys.stderr)
+                  cfg["tag"] = newest
+                  cfg["debian_revision"] = 1
+                  bumped.append(line)
+
+          new_lines = sorted(
+              l for l in latest_per_line
+              if l not in data["lines"]
+          )
+
+          if bumped:
+              with open(path, "w") as f:
+                  yaml.safe_dump(data, f, sort_keys=False)
+
+          with open("/tmp/cron-result.json", "w") as f:
+              json.dump({"bumped": bumped, "new_lines": new_lines}, f)
+          PY
+
+          bumped="$(python3 -c 'import json;print(",".join(json.load(open("/tmp/cron-result.json"))["bumped"]))')"
+          new_lines="$(python3 -c 'import json;print(",".join(json.load(open("/tmp/cron-result.json"))["new_lines"]))')"
+          echo "bumped=${bumped}" >> "$GITHUB_OUTPUT"
+          echo "new_lines=${new_lines}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit tracked-lines.yaml and trigger a build for bumped lines
+        if: steps.check.outputs.bumped != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tracked-lines.yaml
+          git commit -m "cron: bump line(s) ${{ steps.check.outputs.bumped }} to latest upstream patch"
+          git push
+          gh workflow run .github/workflows/build.yml --ref main -F lines="${{ steps.check.outputs.bumped }}"
+
+      # New major.minor lines are NOT auto-added: they usually need patch
+      # rework (see lines/*/patches/NOTES.md history) and raise EOL-policy
+      # questions that deserve a human decision. File/refresh a single
+      # tracking issue instead, so a maintainer can add the line via a
+      # reviewed PR (tracked-lines.yaml entry + lines/<line>/patches/).
+      - name: File or update a tracking issue for brand-new lines
+        if: steps.check.outputs.new_lines != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          title="New Valkey line(s) detected: ${{ steps.check.outputs.new_lines }}"
+          existing="$(gh issue list --search "in:title \"New Valkey line(s) detected\"" --state open --json number,title --jq '.[0].number // empty')"
+          body="Upstream has published tags for major.minor line(s) not yet tracked in \`tracked-lines.yaml\`: **${{ steps.check.outputs.new_lines }}**.
+
+          This is not auto-added (see README: EOL/retirement policy + patch divergence risk). To start tracking a line:
+          1. Add an entry under \`lines:\` in \`tracked-lines.yaml\`.
+          2. Create \`lines/<line>/patches/\` (start from the newest existing line's patch set) and \`lines/<line>/changelog\`.
+          3. Verify the patch set applies cleanly (\`bin/materialize-debian.sh <line> <checkout>\` + \`quilt push -a\`), ideally via \`bin/build-in-lxc.sh\`.
+          4. Open a PR."
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" --body "${body}"
+          else
+            gh issue create --title "${title}" --body "${body}"
+          fi
