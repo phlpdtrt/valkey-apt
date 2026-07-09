@@ -200,8 +200,10 @@ project - see "Verification status" below.
 - Repo is at github.com/phlpdtrt/valkey-apt but not yet pushed there / no
   `gh-pages` branch exists yet, so the `phlpdtrt.github.io/valkey-apt` URLs
   above don't resolve until that first push + a GitHub Pages publish happen.
-- Set up the APT signing key/GitHub secrets (`APT_SIGNING_KEY`,
-  `APT_PUBLIC_KEY`) referenced by `build.yml`'s `publish` job.
+- Add the `APT_SIGNING_KEY` GitHub Actions secret (the ASCII-armored private
+  key) - the only secret `build.yml`'s `publish` job needs. It re-derives
+  and publishes the matching public key (`public.key`) from that secret on
+  every run, so key rotation only ever touches this one secret.
 - Re-confirm Valkey's actual upstream support policy against the EOL rule
   above at rollout time.
 - `README.md`/`add-repository.sh` list supported distros separately from

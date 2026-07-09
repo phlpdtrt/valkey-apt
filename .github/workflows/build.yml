@@ -198,6 +198,15 @@ jobs:
           key_id="$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5; exit}')"
           echo "key_id=${key_id}" >> "$GITHUB_OUTPUT"
 
+      - name: Publish/refresh public.key
+        run: |
+          set -eu
+          # Self-contained: the public key served to end users is always
+          # re-derived from whatever APT_SIGNING_KEY currently holds, so a
+          # future key rotation only requires updating the one secret - no
+          # separate public-key upload step to remember.
+          gpg --export "${{ steps.gpg.outputs.key_id }}" > repo/public.key
+
       - name: Ingest + regenerate indices
         run: |
           build-debian/bin/publish-repo.sh repo incoming --gpg-key "${{ steps.gpg.outputs.key_id }}"
