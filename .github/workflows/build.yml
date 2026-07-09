@@ -129,7 +129,13 @@ jobs:
 
             /github/workspace/build-debian/bin/materialize-debian.sh "${{ matrix.line.name }}" /github/workspace
           extra-build-deps: "devscripts git dpkg-cross"
-          before-build-hook: "DEBEMAIL='GitHub Actions <github-actions@users.noreply.github.com>' dch -v ${{ env.pkg_version }} 'GitHub build of valkey ${{ matrix.line.tag }} (line ${{ matrix.line.name }}) for ${{ matrix.os-version }}'"
+          # -b: our per-line base changelog entry (e.g. "9.1.0-1") has no
+          # ~codename suffix, and "~" sorts BEFORE the bare version it's
+          # appended to - dch's default "must increase" check would reject
+          # every ~<codename><N> build on that basis. We deliberately build
+          # several sibling codename variants from one common base, so
+          # there is no real linear ordering to enforce here.
+          before-build-hook: "DEBEMAIL='GitHub Actions <github-actions@users.noreply.github.com>' dch -v ${{ env.pkg_version }} -b 'GitHub build of valkey ${{ matrix.line.tag }} (line ${{ matrix.line.name }}) for ${{ matrix.os-version }}'"
           buildpackage-opts: --build=binary --no-sign -d
 
       - name: Upload deb files

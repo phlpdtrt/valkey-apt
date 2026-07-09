@@ -101,7 +101,9 @@ jobs:
 
             /github/workspace/build-debian/bin/materialize-debian.sh "${{ inputs.line }}" /github/workspace
           extra-build-deps: "devscripts git dpkg-cross"
-          before-build-hook: "DEBEMAIL='GitHub Actions <github-actions@users.noreply.github.com>' dch -v ${{ steps.resolve.outputs.tag }}-${{ steps.resolve.outputs.debian_revision }}~${{ env.debian_release }}1 'GitHub manual build for ${{ inputs.flavor }}'"
+          # -b: see the comment on the equivalent step in build.yml - the
+          # ~codename suffix always sorts below the bare base version.
+          before-build-hook: "DEBEMAIL='GitHub Actions <github-actions@users.noreply.github.com>' dch -v ${{ steps.resolve.outputs.tag }}-${{ steps.resolve.outputs.debian_revision }}~${{ env.debian_release }}1 -b 'GitHub manual build for ${{ inputs.flavor }}'"
           buildpackage-opts: --build=binary --no-sign -d
 
       - name: Upload deb files
