@@ -19,8 +19,8 @@ Build-Depends:
  tcl-tls <!nocheck>,
 Standards-Version: 4.7.2
 Homepage: https://valkey.io
-Vcs-Git: https://github.com/CHANGEME/valkey-apt.git
-Vcs-Browser: https://github.com/CHANGEME/valkey-apt
+Vcs-Git: https://github.com/phlpdtrt/valkey-apt.git
+Vcs-Browser: https://github.com/phlpdtrt/valkey-apt
 Rules-Requires-Root: no
 
 Package: valkey-server

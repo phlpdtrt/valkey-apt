@@ -1,14 +1,11 @@
 #!/bin/sh
 # To add this repository please do:
 #
-#   wget -O- https://CHANGEME.github.io/valkey-apt/add-repository.sh | bash
+#   wget -O- https://phlpdtrt.github.io/valkey-apt/add-repository.sh | bash
 #
 # Optionally pin to a specific tracked line right away:
 #
-#   wget -O- https://CHANGEME.github.io/valkey-apt/add-repository.sh | bash -s -- --pin 9.0
-#
-# NOTE: the CHANGEME host above is a placeholder until this project has a
-# real publishing location - see README.md "Offene Punkte".
+#   wget -O- https://phlpdtrt.github.io/valkey-apt/add-repository.sh | bash -s -- --pin 9.0
 
 set -eu
 
@@ -55,14 +52,14 @@ esac
 
 ${SUDO} apt-get update
 ${SUDO} apt-get -y install ca-certificates wget
-${SUDO} wget -O /usr/share/keyrings/valkey-apt.key https://CHANGEME.github.io/valkey-apt/public.key
-echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://CHANGEME.github.io/valkey-apt/repo ${CODENAME} main" | ${SUDO} tee /etc/apt/sources.list.d/valkey-apt.list
+${SUDO} wget -O /usr/share/keyrings/valkey-apt.key https://phlpdtrt.github.io/valkey-apt/public.key
+echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt/repo ${CODENAME} main" | ${SUDO} tee /etc/apt/sources.list.d/valkey-apt.list
 
 if [ -n "$PIN_LINE" ]; then
     echo "Pinning valkey-server/valkey-tools/valkey-sentinel to line ${PIN_LINE}.*"
     ${SUDO} tee /etc/apt/preferences.d/valkey-apt.pref > /dev/null <<EOF
 Package: valkey-server valkey-tools valkey-sentinel
-Pin: origin "CHANGEME.github.io"
+Pin: origin "phlpdtrt.github.io"
 Pin: version ${PIN_LINE}.*
 Pin-Priority: 1001
 EOF

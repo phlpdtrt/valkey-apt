@@ -13,8 +13,10 @@ incremental change.
 
 ## Repository information
 
-Pre-built packages: `https://CHANGEME.github.io/valkey-apt/` (placeholder
-until this project has a real publishing location - see "Open items").
+Source: [github.com/phlpdtrt/valkey-apt](https://github.com/phlpdtrt/valkey-apt)
+
+Pre-built packages: `https://phlpdtrt.github.io/valkey-apt/` (served from
+the `gh-pages` branch - not yet published, see "Open items").
 
 ## Supported Debian/Ubuntu versions
 
@@ -35,7 +37,7 @@ tags are not kept around indefinitely - see "Versioning" below).
 ### Automatically via script
 
 ```bash
-wget -O- https://CHANGEME.github.io/valkey-apt/add-repository.sh | bash
+wget -O- https://phlpdtrt.github.io/valkey-apt/add-repository.sh | bash
 apt-get install valkey-server
 ```
 
@@ -46,9 +48,9 @@ always the newest tracked line (`default:` in `tracked-lines.yaml`).
 
 ```bash
 apt-get install wget ca-certificates
-wget -O /usr/share/keyrings/valkey-apt.key https://CHANGEME.github.io/valkey-apt/public.key
+wget -O /usr/share/keyrings/valkey-apt.key https://phlpdtrt.github.io/valkey-apt/public.key
 source /etc/os-release
-echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://CHANGEME.github.io/valkey-apt/repo ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/valkey-apt.list
+echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt/repo ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/valkey-apt.list
 apt-get update && apt-get install valkey-server
 ```
 
@@ -65,7 +67,7 @@ Pin to one, e.g. the `9.0` line:
 ```
 # /etc/apt/preferences.d/valkey-apt.pref
 Package: valkey-server valkey-tools valkey-sentinel
-Pin: origin "CHANGEME.github.io"
+Pin: origin "phlpdtrt.github.io"
 Pin: version 9.0.*
 Pin-Priority: 1001
 ```
@@ -195,8 +197,11 @@ project - see "Verification status" below.
 
 ## Open items
 
-- Real repo name/hosting location (`CHANGEME` placeholders throughout).
-- Reuse or regenerate the APT signing key/GitHub secrets.
+- Repo is at github.com/phlpdtrt/valkey-apt but not yet pushed there / no
+  `gh-pages` branch exists yet, so the `phlpdtrt.github.io/valkey-apt` URLs
+  above don't resolve until that first push + a GitHub Pages publish happen.
+- Set up the APT signing key/GitHub secrets (`APT_SIGNING_KEY`,
+  `APT_PUBLIC_KEY`) referenced by `build.yml`'s `publish` job.
 - Re-confirm Valkey's actual upstream support policy against the EOL rule
   above at rollout time.
 - `README.md`/`add-repository.sh` list supported distros separately from
