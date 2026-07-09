@@ -18,8 +18,8 @@ until this project has a real publishing location - see "Open items").
 
 ## Supported Debian/Ubuntu versions
 
-- Debian: `bullseye` (11), `bookworm` (12), `trixie` (13)
-- Ubuntu: `jammy` (22.04 LTS), `noble` (24.04 LTS)
+- Debian: `bookworm` (12), `trixie` (13)
+- Ubuntu: `jammy` (22.04 LTS), `noble` (24.04 LTS), `resolute` (26.04 LTS)
 
 Source of truth: [`.github/supported-releases.txt`](.github/supported-releases.txt).
 
@@ -163,29 +163,35 @@ project - see "Verification status" below.
 
 ## Verification status
 
-This project was scaffolded (files, scripts, CI workflow definitions) without
-running an actual build. Before relying on it:
-
-1. **Patches for the 8.0, 8.1, and 9.0 lines are unverified** - they were
-   seeded as a straight copy of the 9.1 line's patch set (the last one known
-   to apply cleanly, per the source project's history). Check
-   `lines/<line>/patches/NOTES.md` in each line for what to verify; the
-   jemalloc patch (`0004-Add-support-for-USE_SYSTEM_JEMALLOC-flag.patch`) is
-   the most likely to need adjustment, since it already needed rework once
-   between 9.0 and 9.1 upstream.
-2. `bin/publish-repo.sh` (the multi-version retention + index regeneration
+1. **Line 9.1 is build/install/run verified.** `bin/build-in-lxc.sh 9.1
+   trixie amd64` was run for real in a local LXD `debian/trixie` container
+   on 2026-07-09: all three `.deb`s built, installed cleanly (`dpkg -i` +
+   `apt-get -f install`, no dependency errors), the generated
+   `valkey-server.service` started under systemd, and `valkey-cli
+   ping`/`info server` confirmed a working `valkey_version:9.1.0` server.
+   This exercised `common/control`, `common/rules`, all of `lines/9.1/patches`
+   (applied and unapplied cleanly), the systemd-unit generator, and the
+   maintainer scripts end-to-end. See `lines/9.1/patches/NOTES.md`.
+2. **Patches for the 8.0, 8.1, and 9.0 lines are still unverified** - they
+   were seeded as a straight copy of the (now verified) 9.1 baseline. Check
+   `lines/<line>/patches/NOTES.md` in each; the jemalloc patch
+   (`0004-Add-support-for-USE_SYSTEM_JEMALLOC-flag.patch`) is the most likely
+   to need adjustment, since it already needed rework once between 9.0 and
+   9.1 upstream. `bin/build-in-lxc.sh <line> <codename> amd64` is the fastest
+   way to check each one.
+3. `bin/publish-repo.sh` (the multi-version retention + index regeneration
    logic) has been dry-run tested locally against fake `.deb` files, confirming
    several lines coexist correctly per codename and that a patch bump only
    evicts the superseded build within its own (line, codename) slot. It has
    **not** been tested against a real `apt-get update`/`apt-cache policy` run
    yet - do that (ideally inside an LXD container, see above) before
    production use.
-3. `bin/materialize-debian.sh` has been dry-run tested (merges `common/` +
-   a line's `patches`/`changelog` into a normal `debian/` tree) but not yet
-   run through an actual `dpkg-buildpackage`.
 4. The GitHub Actions workflows are new and have not been run - they build
    without syntax errors (workflow YAML + embedded Python checked), but real
    execution may surface issues (e.g. GPG signing flow, matrix sizing).
+5. Only `amd64` has been exercised so far (this build machine's native arch);
+   `arm64` goes through a different LXD image alias
+   (`bin/build-in-lxc.sh` appends `/arm64`) and has not been tried.
 
 ## Open items
 

@@ -39,16 +39,16 @@ fi
 
 if [ -z "${DISTRO_ID}" ] || [ -z "${CODENAME}" ]; then
     echo "Unable to detect distro codename from /etc/os-release."
-    echo "This repository supports Debian (bullseye, bookworm, trixie) and Ubuntu (jammy, noble)."
+    echo "This repository supports Debian (bookworm, trixie) and Ubuntu (jammy, noble, resolute)."
     exit 1
 fi
 
 case "${DISTRO_ID}:${CODENAME}" in
-    debian:bullseye|debian:bookworm|debian:trixie|ubuntu:jammy|ubuntu:noble)
+    debian:bookworm|debian:trixie|ubuntu:jammy|ubuntu:noble|ubuntu:resolute)
         ;;
     *)
         echo "Unsupported distribution: ${DISTRO_ID}:${CODENAME}"
-        echo "Supported releases: debian:{bullseye,bookworm,trixie} ubuntu:{jammy,noble}"
+        echo "Supported releases: debian:{bookworm,trixie} ubuntu:{jammy,noble,resolute}"
         exit 1
         ;;
 esac

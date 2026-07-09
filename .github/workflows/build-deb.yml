@@ -93,14 +93,6 @@ jobs:
                 cat /etc/apt/sources.list  /etc/apt/sources.list.d/ubuntu-arm.list
               fi
             fi
-            if [ "$os_version" = "debian:bullseye" ]; then
-              apt-get -q update
-              apt-get install -y --no-install-recommends wget ca-certificates
-              wget -q -O /tmp/autoconf_2.71-3_all.deb http://ftp.us.debian.org/debian/pool/main/a/autoconf/autoconf_2.71-3_all.deb
-              dpkg --force-depends -i /tmp/autoconf_2.71-3_all.deb
-              apt-get -f install -y
-            fi
-
             if [ "$arch" = "arm64" ]; then
               dpkg --add-architecture arm64
               apt-get update

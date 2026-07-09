@@ -57,18 +57,34 @@ if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
 fi
 
 # Map our (distro:codename) naming to an LXD/simplestreams image alias.
+# Debian: the "images:" remote serves proper (non-desktop) containers by
+# codename. Ubuntu: as of this writing "images:" only carries desktop/VM
+# images for jammy/noble/resolute, so use the "ubuntu:" cloud-images remote
+# instead, which resolves codenames to real server containers.
 case "$CODENAME" in
-    bullseye|bookworm|trixie) IMAGE="images:debian/$CODENAME" ;;
-    jammy|noble)               IMAGE="images:ubuntu/$CODENAME" ;;
+    bookworm|trixie)          BASE_IMAGE="images:debian/$CODENAME" ;;
+    jammy|noble|resolute)     BASE_IMAGE="ubuntu:$CODENAME" ;;
     *) echo "Unknown codename: $CODENAME (check .github/supported-releases.txt)" >&2; exit 1 ;;
 esac
 
-CONTAINER="build-${LINE}-${CODENAME}-${ARCH}"
+# LXD has no generic "give me this image in another arch" launch flag - a
+# non-native arch needs an arch-specific image alias instead (e.g.
+# images:debian/trixie/arm64). Only amd64 is verified for now.
+HOST_ARCH="$(uname -m)"
+case "$ARCH" in
+    amd64) [ "$HOST_ARCH" = "x86_64" ] || { echo "Requested amd64 on non-amd64 host ($HOST_ARCH) - not supported by this script" >&2; exit 1; }
+           IMAGE="$BASE_IMAGE" ;;
+    arm64) IMAGE="${BASE_IMAGE}/arm64" ;;
+    *) echo "Unknown arch: $ARCH" >&2; exit 1 ;;
+esac
+
+LINE_SAFE="$(echo "$LINE" | tr '.' '-')"
+CONTAINER="build-${LINE_SAFE}-${CODENAME}-${ARCH}"
 OUT_DIR="$REPO_ROOT/out/$LINE/$CODENAME/$ARCH"
 mkdir -p "$OUT_DIR"
 
-echo "==> Launching $CONTAINER from $IMAGE (arch: $ARCH)"
-lxc launch "$IMAGE" "$CONTAINER" ${ARCH:+-c "image.architecture=$ARCH"}
+echo "==> Launching $CONTAINER from $IMAGE"
+lxc launch "$IMAGE" "$CONTAINER"
 
 cleanup() {
     if [ "$KEEP" != "--keep" ]; then
@@ -111,13 +127,26 @@ lxc file push -r "$WORK/debian-src/debian" "$CONTAINER/root/valkey/"
 rm -rf "$WORK"
 
 echo "==> Running dpkg-buildpackage in $CONTAINER"
+# nocheck: skip the upstream test suite (runtest/runtest-cluster/runtest-sentinel)
+# for this local smoke build - CI (build.yml) runs without nocheck and does
+# execute the full suite. DEB_BUILD_OPTIONS is SPACE-separated per Debian
+# policy - a comma here would make debian/rules' `$(filter nocheck,...)`
+# check silently never match, since Make's $(filter) splits on whitespace.
 lxc exec "$CONTAINER" -- sh -c '
     cd /root/valkey
-    DEB_BUILD_OPTIONS=noautodbgsym dpkg-buildpackage --build=binary --no-sign -d
+    DEB_BUILD_OPTIONS="nocheck noautodbgsym" dpkg-buildpackage --build=binary --no-sign -d
 '
 
 echo "==> Collecting .deb artifacts into $OUT_DIR"
-lxc file pull "$CONTAINER/root/"*.deb "$OUT_DIR/" 2>/dev/null || \
-    echo "No .deb files found directly under /root - check dpkg-buildpackage output above"
+# lxc file pull does not glob remote paths - list them inside the container
+# first, then pull each by exact name.
+debs="$(lxc exec "$CONTAINER" -- sh -c 'ls /root/*.deb 2>/dev/null' || true)"
+if [ -z "$debs" ]; then
+    echo "No .deb files found directly under /root - check dpkg-buildpackage output above" >&2
+else
+    echo "$debs" | while read -r deb; do
+        lxc file pull "$CONTAINER$deb" "$OUT_DIR/"
+    done
+fi
 
 echo "==> Done. Artifacts (if any): $OUT_DIR"
