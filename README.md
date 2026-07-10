@@ -50,7 +50,7 @@ always the newest tracked line (`default:` in `tracked-lines.yaml`).
 apt-get install wget ca-certificates
 wget -O /usr/share/keyrings/valkey-apt.key https://phlpdtrt.github.io/valkey-apt/public.key
 source /etc/os-release
-echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt/repo ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/valkey-apt.list
+echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/valkey-apt.list
 apt-get update && apt-get install valkey-server
 ```
 

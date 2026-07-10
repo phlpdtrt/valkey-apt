@@ -53,7 +53,7 @@ esac
 ${SUDO} apt-get update
 ${SUDO} apt-get -y install ca-certificates wget
 ${SUDO} wget -O /usr/share/keyrings/valkey-apt.key https://phlpdtrt.github.io/valkey-apt/public.key
-echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt/repo ${CODENAME} main" | ${SUDO} tee /etc/apt/sources.list.d/valkey-apt.list
+echo "deb [signed-by=/usr/share/keyrings/valkey-apt.key] https://phlpdtrt.github.io/valkey-apt ${CODENAME} main" | ${SUDO} tee /etc/apt/sources.list.d/valkey-apt.list
 
 if [ -n "$PIN_LINE" ]; then
     echo "Pinning valkey-server/valkey-tools/valkey-sentinel to line ${PIN_LINE}.*"
