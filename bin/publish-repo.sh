@@ -39,6 +39,14 @@ for tool in dpkg-deb dpkg-scanpackages apt-ftparchive python3; do
     command -v "$tool" >/dev/null 2>&1 || { echo "Missing required tool: $tool" >&2; exit 1; }
 done
 
+# Normalize to an absolute path: several steps below `cd` into $REPO_DIR
+# inside a subshell, and any path derived from a *relative* $REPO_DIR (like
+# $bin_dir) would then resolve against the wrong (already-inside) cwd,
+# doubling the prefix (e.g. "repo/repo/dists/..."). Absolute paths are
+# immune to that regardless of which directory a subshell cd's into.
+mkdir -p "$REPO_DIR"
+REPO_DIR="$(cd "$REPO_DIR" && pwd)"
+
 mkdir -p "$REPO_DIR/pool/main/v/valkey"
 
 CODENAMES=$(grep -E '^[a-z]+:[a-z0-9]+$' "$REPO_ROOT/.github/supported-releases.txt" | cut -d: -f2)
