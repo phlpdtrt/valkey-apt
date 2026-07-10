@@ -14,7 +14,7 @@ Last-Update: 28-04-2025
  7 files changed, 29 insertions(+)
 
 diff --git a/deps/Makefile b/deps/Makefile
-index 94d9385..0935dce 100644
+index 7815fe1..4a0fafa 100644
 --- a/deps/Makefile
 +++ b/deps/Makefile
 @@ -39,7 +39,9 @@ distclean:
@@ -26,7 +26,7 @@ index 94d9385..0935dce 100644
 +endif
  	-(cd hdr_histogram && $(MAKE) clean) > /dev/null || true
  	-(cd fpconv && $(MAKE) clean) > /dev/null || true
- 	-(rm -f .make-*)
+ 	-(cd fast_float_c_interface && $(MAKE) clean) > /dev/null || true
 diff --git a/src/Makefile b/src/Makefile
 index 2812c4d..3bd1c18 100644
 --- a/src/Makefile

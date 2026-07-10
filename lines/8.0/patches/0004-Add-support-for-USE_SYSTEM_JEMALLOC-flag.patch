@@ -14,11 +14,11 @@ Last-Update: 28-04-2025
  7 files changed, 29 insertions(+)
 
 diff --git a/deps/Makefile b/deps/Makefile
-index 94d9385..0935dce 100644
+index f1e4bd6..2b789b0 100644
 --- a/deps/Makefile
 +++ b/deps/Makefile
 @@ -39,7 +39,9 @@ distclean:
- 	-(cd libvalkey && $(MAKE) clean) > /dev/null || true
+ 	-(cd hiredis && $(MAKE) clean) > /dev/null || true
  	-(cd linenoise && $(MAKE) clean) > /dev/null || true
  	-(cd lua && $(MAKE) clean) > /dev/null || true
 +ifneq ($(USE_SYSTEM_JEMALLOC),yes)
@@ -28,10 +28,10 @@ index 94d9385..0935dce 100644
  	-(cd fpconv && $(MAKE) clean) > /dev/null || true
  	-(rm -f .make-*)
 diff --git a/src/Makefile b/src/Makefile
-index 2812c4d..3bd1c18 100644
+index 020b70d..cbb28a7 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -330,10 +330,15 @@ ifeq ($(MALLOC),tcmalloc_minimal)
+@@ -297,10 +297,15 @@ ifeq ($(MALLOC),tcmalloc_minimal)
  endif
  
  ifeq ($(MALLOC),jemalloc)
@@ -44,9 +44,40 @@ index 2812c4d..3bd1c18 100644
  	FINAL_LIBS := ../deps/jemalloc/lib/libjemalloc.a $(FINAL_LIBS)
  endif
 +endif
+
+ # LIBSSL & LIBCRYPTO
+ LIBSSL_LIBS=
+diff --git a/src/object.c b/src/object.c
+index 9b72f13..db6e91d 100644
+--- a/src/object.c
++++ b/src/object.c
+@@ -41,6 +41,11 @@
+ #define strtold(a, b) ((long double)strtod((a), (b)))
+ #endif
  
- ifeq ($(USE_LTTNG),yes)
- 	FINAL_CFLAGS+=-DUSE_LTTNG
++#if defined(USE_JEMALLOC) && defined(USE_SYSTEM_JEMALLOC)
++#define je_mallctl mallctl
++#define je_malloc_stats_print malloc_stats_print
++#endif
++
+ /* ===================== Creation and parsing of objects ==================== */
+ 
+ robj *createObject(int type, void *ptr) {
+diff --git a/src/sds.c b/src/sds.c
+index 8e2a50e..45474cb 100644
+--- a/src/sds.c
++++ b/src/sds.c
+@@ -39,6 +39,10 @@
+ #include "sdsalloc.h"
+ #include "util.h"
+ 
++#if defined(USE_SYSTEM_JEMALLOC)
++#define je_nallocx(size, flags) nallocx(size, flags)
++#endif
++
+ const char *SDS_NOINIT = "SDS_NOINIT";
+ 
+ static inline int sdsHdrSize(char type) {
 diff --git a/src/debug.c b/src/debug.c
 index daa676a..cccf50e 100644
 --- a/src/debug.c
@@ -62,41 +93,11 @@ index daa676a..cccf50e 100644
  /* ================================= Debugging ============================== */
  
  /* Compute the sha1 of string at 's' with 'len' bytes long.
-diff --git a/src/object.c b/src/object.c
-index fe2e76f..f6f7aa6 100644
---- a/src/object.c
-+++ b/src/object.c
-@@ -48,6 +48,10 @@
- /* For objects with large embedded keys, we reserve space for an expire field,
-  * so if expire is set later, we don't need to reallocate the object. */
- #define KEY_SIZE_TO_INCLUDE_EXPIRE_THRESHOLD 128
-+#if defined(USE_JEMALLOC) && defined(USE_SYSTEM_JEMALLOC)
-+#define je_mallctl mallctl
-+#define je_malloc_stats_print malloc_stats_print
-+#endif
- 
- /* ===================== Creation and parsing of objects ==================== */
- 
-diff --git a/src/sds.c b/src/sds.c
-index dcb95b8..373298c 100644
---- a/src/sds.c
-+++ b/src/sds.c
-@@ -39,6 +39,10 @@
- #include "sdsalloc.h"
- #include "util.h"
- 
-+#if defined(USE_SYSTEM_JEMALLOC)
-+#define je_nallocx(size, flags) nallocx(size, flags)
-+#endif
-+
- const char *SDS_NOINIT = "SDS_NOINIT";
- 
- int sdsHdrSize(char type) {
 diff --git a/src/zmalloc.c b/src/zmalloc.c
-index 453b83f..4f8103c 100644
+index 33bda86..43b5bdf 100644
 --- a/src/zmalloc.c
 +++ b/src/zmalloc.c
-@@ -85,11 +85,17 @@ void zlibc_free(void *ptr) {
+@@ -80,6 +80,11 @@ void zlibc_free(void *ptr) {
  #define free(ptr) tc_free(ptr)
  /* Explicitly override malloc/free etc when using jemalloc. */
  #elif defined(USE_JEMALLOC)
@@ -108,7 +109,9 @@ index 453b83f..4f8103c 100644
  #define malloc(size) je_malloc(size)
  #define calloc(count, size) je_calloc(count, size)
  #define realloc(ptr, size) je_realloc(ptr, size)
- #define free(ptr) je_free(ptr)
+@@ -87,6 +92,7 @@ void zlibc_free(void *ptr) {
+ #define mallocx(size, flags) je_mallocx(size, flags)
+ #define dallocx(ptr, flags) je_dallocx(ptr, flags)
  #endif
 +#endif
  

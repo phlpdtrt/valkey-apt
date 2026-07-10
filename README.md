@@ -174,13 +174,16 @@ project - see "Verification status" below.
    This exercised `common/control`, `common/rules`, all of `lines/9.1/patches`
    (applied and unapplied cleanly), the systemd-unit generator, and the
    maintainer scripts end-to-end. See `lines/9.1/patches/NOTES.md`.
-2. **Patches for the 8.0, 8.1, and 9.0 lines are still unverified** - they
-   were seeded as a straight copy of the (now verified) 9.1 baseline. Check
-   `lines/<line>/patches/NOTES.md` in each; the jemalloc patch
-   (`0004-Add-support-for-USE_SYSTEM_JEMALLOC-flag.patch`) is the most likely
-   to need adjustment, since it already needed rework once between 9.0 and
-   9.1 upstream. `bin/build-in-lxc.sh <line> <codename> amd64` is the fastest
-   way to check each one.
+2. **Patches for 8.0, 8.1, and 9.0 are now also verified.** All four tracked
+   lines' full patch series were confirmed (2026-07-10) to apply cleanly
+   against a fresh checkout of their respective tag, using `patch -p1 -F0 -t`
+   for every hunk (the exact flags `dpkg-source` uses). Several patches
+   needed real, line-specific rework - see each `lines/<line>/patches/NOTES.md`
+   for what diverged (mostly `deps/Makefile`'s dep list, the jemalloc guard
+   in `src/Makefile`, and a few source files where anchor comments/context
+   differ pre-9.x). Only 9.1 has additionally been build/install/run tested
+   end-to-end (point 1); 8.0/8.1/9.0 are patch-clean but not yet build-tested
+   - run `bin/build-in-lxc.sh <line> <codename> amd64` to do that next.
 3. `bin/publish-repo.sh` (the multi-version retention + index regeneration
    logic) has been dry-run tested locally against fake `.deb` files, confirming
    several lines coexist correctly per codename and that a patch bump only

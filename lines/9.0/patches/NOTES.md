@@ -1,9 +1,8 @@
-Status: UNVERIFIED — copied from the 9.1 baseline as a starting point.
+Status: verified against a fresh 9.0.4 checkout (2026-07-10).
 
-Before the first real build for this line, run `bin/materialize-debian.sh 9.0`
-against an actual `valkey` checkout at tag `9.0.4` (or whatever
-`tracked-lines.yaml` currently pins) and confirm `quilt push -a` applies all
-patches cleanly. `0004-Add-support-for-USE_SYSTEM_JEMALLOC-flag.patch` is the
-most likely to need adjustment, since it has already needed rework once
-between 9.0 and 9.1 upstream. Update or drop patches here as needed, then
-delete this note.
+Diverged from the 9.1 baseline in `deps/Makefile`'s `distclean` target (an
+extra `fast_float_c_interface` clean line breaks the naive context match)
+and required the same jemalloc-guard rework as 9.1's own patch history.
+Verified with `patch -p1 -F0 -t` for every hunk in this series against a
+fresh `git clone --branch 9.0.4`, matching exactly the flags `dpkg-source`
+uses. No further action needed until 9.0 gets a new patch tag upstream.
