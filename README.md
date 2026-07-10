@@ -4,7 +4,9 @@ Debian/Ubuntu packaging for [Valkey](https://github.com/valkey-io/valkey) that
 tracks **several major.minor release lines in parallel** (e.g. 8.0.x, 8.1.x,
 9.0.x, 9.1.x) in the same APT repository, so you can pick and upgrade within a
 specific line via standard APT pinning instead of always getting whatever the
-maintainers built most recently.
+maintainers built most recently. Every Valkey release that ever gets built
+here stays published and installable indefinitely (not just the newest patch
+per line) - see "Versioning scheme" and "Retention policy" below.
 
 This is a rewrite of the single-version [greenSec `valkey-debian`
 project](https://github.com/greensec/valkey-debian) it is derived from - see
@@ -16,7 +18,7 @@ incremental change.
 Source: [github.com/phlpdtrt/valkey-apt](https://github.com/phlpdtrt/valkey-apt)
 
 Pre-built packages: `https://phlpdtrt.github.io/valkey-apt/` (served from
-the `gh-pages` branch - not yet published, see "Open items").
+the `gh-pages` branch - live).
 
 ## Supported Debian/Ubuntu versions
 
@@ -27,10 +29,11 @@ Source of truth: [`.github/supported-releases.txt`](.github/supported-releases.t
 
 ## Tracked Valkey lines
 
-Source of truth: [`tracked-lines.yaml`](tracked-lines.yaml). Each entry is a
-major.minor line pinned to the newest upstream patch tag for that line; when
-upstream ships a new patch, the line's `tag` is bumped in place (old patch
-tags are not kept around indefinitely - see "Versioning" below).
+Source of truth: [`tracked-lines.yaml`](tracked-lines.yaml). Each entry
+records the newest upstream patch tag known for that line, used to detect
+and build new patch releases (see "How new patches/lines get added"). It
+does **not** control what stays published - every patch ever built is kept
+forever (see "Retention policy").
 
 ## Installing
 
@@ -84,6 +87,11 @@ apt-cache policy valkey-server   # confirm the pin took effect
 `add-repository.sh --pin <line>` writes this file for you during initial
 install (see the script header for the one-liner).
 
+Since every patch ever built stays published (see "Retention policy"), you
+can also pin to one *exact* version instead of a whole line, e.g.
+`Pin: version 8.1.8-1*` - useful if you specifically don't want to move
+past a known-good patch even within its own line.
+
 ### Switching to a different line later
 
 Edit the `Pin: version` glob in the same file, then:
@@ -111,8 +119,8 @@ tracked-lines.yaml   which lines are tracked, at which upstream tag
 bin/materialize-debian.sh   merges common/ + lines/<line>/ into a normal
                              debian/ tree at build time
 bin/build-in-lxc.sh          local build helper (see below)
-bin/publish-repo.sh          adds new .debs to the pool, regenerates indices,
-                              enforces the multi-version retention policy
+bin/publish-repo.sh          adds new .debs to the pool, regenerates indices;
+                              never removes anything (see "Retention policy")
 .github/workflows/           CI: build.yml, build-deb.yml, cron-check-upstream.yml
 ```
 
@@ -142,15 +150,28 @@ package, since this project builds directly from upstream GitHub tags.
   reviewed PR (new `tracked-lines.yaml` entry + `lines/<line>/patches/`,
   seeded from the newest existing line and verified before merging).
 
+## Retention policy
+
+Every `(package, version, codename, arch)` combination ever published stays
+in the pool and in the `Packages` index forever - `bin/publish-repo.sh` only
+ever adds, it never deletes based on version. Concretely: when 8.1.9 ships,
+8.1.8 is **not** removed; both remain installable/pinnable
+(`Pin: version 8.1.8-1*` still works after 8.1.9 exists). The only way a
+version disappears is a deliberate manual step (see the script header) -
+e.g. if upstream retracts a release for some reason. This does mean the pool
+and the `gh-pages` branch only ever grow; there is currently no pruning, by
+design.
+
 ## EOL / retirement policy
 
-Always keep the newest minor of the current major and the newest minor of
-the immediately preceding major, plus any line still receiving upstream
-patches or explicitly marked `lts: true`. A line moves to `status: eol` once
-upstream stops patching it and it's no longer the newest minor of its major -
-CI then stops rebuilding/checking it, but its last-built `.deb` stays
-published indefinitely so pinned users can still reinstall/upgrade within
-that line.
+`status: eol` in `tracked-lines.yaml` only controls whether
+`cron-check-upstream.yml`/`build.yml` keep checking and building **new**
+patches for that line - it has no effect on what's already published (see
+"Retention policy" above; nothing is ever removed either way). Suggested
+default: mark a line `eol` once upstream stops patching it and it's no
+longer the newest minor of its major, keeping always the newest minor of
+the current major and of the immediately preceding major as a floor, plus
+any line explicitly marked `lts: true`.
 
 ## Local build/test environment (LXC/LXD)
 
@@ -165,53 +186,37 @@ project - see "Verification status" below.
 
 ## Verification status
 
-1. **Line 9.1 is build/install/run verified.** `bin/build-in-lxc.sh 9.1
-   trixie amd64` was run for real in a local LXD `debian/trixie` container
-   on 2026-07-09: all three `.deb`s built, installed cleanly (`dpkg -i` +
-   `apt-get -f install`, no dependency errors), the generated
-   `valkey-server.service` started under systemd, and `valkey-cli
-   ping`/`info server` confirmed a working `valkey_version:9.1.0` server.
-   This exercised `common/control`, `common/rules`, all of `lines/9.1/patches`
-   (applied and unapplied cleanly), the systemd-unit generator, and the
-   maintainer scripts end-to-end. See `lines/9.1/patches/NOTES.md`.
-2. **Patches for 8.0, 8.1, and 9.0 are now also verified.** All four tracked
-   lines' full patch series were confirmed (2026-07-10) to apply cleanly
-   against a fresh checkout of their respective tag, using `patch -p1 -F0 -t`
-   for every hunk (the exact flags `dpkg-source` uses). Several patches
-   needed real, line-specific rework - see each `lines/<line>/patches/NOTES.md`
-   for what diverged (mostly `deps/Makefile`'s dep list, the jemalloc guard
-   in `src/Makefile`, and a few source files where anchor comments/context
-   differ pre-9.x). Only 9.1 has additionally been build/install/run tested
-   end-to-end (point 1); 8.0/8.1/9.0 are patch-clean but not yet build-tested
-   - run `bin/build-in-lxc.sh <line> <codename> amd64` to do that next.
-3. `bin/publish-repo.sh` (the multi-version retention + index regeneration
-   logic) has been dry-run tested locally against fake `.deb` files, confirming
-   several lines coexist correctly per codename and that a patch bump only
-   evicts the superseded build within its own (line, codename) slot. It has
-   **not** been tested against a real `apt-get update`/`apt-cache policy` run
-   yet - do that (ideally inside an LXD container, see above) before
-   production use.
-4. The GitHub Actions workflows are new and have not been run - they build
-   without syntax errors (workflow YAML + embedded Python checked), but real
-   execution may surface issues (e.g. GPG signing flow, matrix sizing).
-5. Only `amd64` has been exercised so far (this build machine's native arch);
-   `arm64` goes through a different LXD image alias
-   (`bin/build-in-lxc.sh` appends `/arm64`) and has not been tried.
+1. **Fully live and working end-to-end as of 2026-07-10.** `build.yml` has
+   run for real for all four lines (8.0, 8.1, 9.0, 9.1) across all five
+   codenames and both arches (120 `.deb`s), and `publish-repo.sh` published
+   them to the real `gh-pages` branch with a real GPG-signed `Release`.
+   `apt-get update`/`apt-cache policy` against the live repo confirms all
+   four lines show up as separate candidate versions. `add-repository.sh`
+   works end-to-end via `wget | bash`.
+2. Line 9.1 was additionally build/install/run tested inside a local LXD
+   container before the first real CI run: package installed cleanly,
+   `valkey-server.service` started under systemd, `valkey-cli ping` ->
+   `PONG`. 8.0/8.1/9.0 have only been verified by the real CI build (not
+   separately install/run tested locally) - see each
+   `lines/<line>/patches/NOTES.md`.
+3. Real bugs found and fixed via actual CI runs (not caught by earlier local
+   testing, which used absolute paths / didn't hit these specific edge
+   cases): a `dch` fatal error from the `~<codename>` versioning scheme
+   (needed `dch -b`), a doubled path in `publish-repo.sh` when invoked with
+   a relative `repo-dir` (CI does; earlier local tests used absolute paths),
+   and a leftover `/repo` path segment in the `sources.list` URL inherited
+   from the old greenSec project's different layout.
 
 ## Open items
 
-- Repo is at github.com/phlpdtrt/valkey-apt but not yet pushed there / no
-  `gh-pages` branch exists yet, so the `phlpdtrt.github.io/valkey-apt` URLs
-  above don't resolve until that first push + a GitHub Pages publish happen.
-- Add the `APT_SIGNING_KEY` GitHub Actions secret (the ASCII-armored private
-  key) - the only secret `build.yml`'s `publish` job needs. It re-derives
-  and publishes the matching public key (`public.key`) from that secret on
-  every run, so key rotation only ever touches this one secret.
 - Re-confirm Valkey's actual upstream support policy against the EOL rule
-  above at rollout time.
+  in "EOL / retirement policy" at rollout time.
 - `README.md`/`add-repository.sh` list supported distros separately from
   `.github/supported-releases.txt` by design (user-facing docs shouldn't
   silently change), but keep both in sync when editing.
+- No pruning exists for the ever-growing pool/`gh-pages` history (see
+  "Retention policy") - fine at current scale, revisit if repo size becomes
+  a problem.
 
 ## Acknowledgements
 

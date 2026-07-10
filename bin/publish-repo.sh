@@ -1,15 +1,17 @@
 #!/bin/bash
 # Add freshly built .deb files to the flat APT pool and regenerate the
-# per-codename indices, retaining exactly one .deb per (package, line,
-# codename, arch) - i.e. multiple Valkey lines coexist in the same Packages
-# file, superseded only within their own line. This is the hand-rolled
-# retention mechanism from the design doc (deliberately not reprepro/aptly,
-# both of which default to "one version per slot" semantics that fight this
-# requirement).
+# per-codename indices. EVERY (package, version, codename, arch) combo ever
+# published is kept - nothing is ever auto-removed, so every Valkey release
+# that ever gets built stays installable/pinnable forever (not just the
+# latest patch per line). This is the hand-rolled publishing mechanism from
+# the design doc (deliberately not reprepro/aptly, both of which default to
+# "one version per slot" semantics that fight multi-version retention).
 #
-# This is new, not-yet-battle-tested code (flagged as the top residual risk
-# in the project plan) - verify with a real `apt update` against the output
-# before relying on it in production. Not invoked by any workflow yet.
+# Manual retraction (e.g. upstream pulls a release): delete the specific
+# pool/main/v/valkey/<pkg>_<version>_<arch>.deb file(s) by hand, then rerun
+# this script with an empty <incoming-dir> to regenerate the indices without
+# it - part 2 (index regeneration) always reflects whatever is currently in
+# the pool, ingestion in part 1 is the only additive step.
 #
 # Usage: bin/publish-repo.sh <repo-dir> <incoming-dir> [--gpg-key <keyid>]
 #
@@ -96,22 +98,6 @@ else
         dest="$REPO_DIR/pool/main/v/valkey/${pkg}_${version}_${arch}.deb"
         echo "==> Adding $dest"
         cp "$deb" "$dest"
-
-        # Retention: remove any other .deb for the same (package, line,
-        # codename, arch) that is NOT this version - it has just been
-        # superseded by a new patch within the same line.
-        find "$REPO_DIR/pool/main/v/valkey" -maxdepth 1 -type f \
-            -name "${pkg}_*_${arch}.deb" ! -name "$(basename "$dest")" |
-        while read -r old; do
-            old_version=$(dpkg-deb -f "$old" Version 2>/dev/null || true)
-            [ -z "$old_version" ] && continue
-            old_line=$(line_of_version "$old_version")
-            old_codename=$(codename_of_version "$old_version" || true)
-            if [ "$old_line" = "$line" ] && [ "$old_codename" = "$codename" ]; then
-                echo "==> Removing superseded $old (line $old_line, $old_codename)"
-                rm -f "$old"
-            fi
-        done
     done
 fi
 
