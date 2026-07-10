@@ -213,6 +213,14 @@ jobs:
           # separate public-key upload step to remember.
           gpg --export "${{ steps.gpg.outputs.key_id }}" > repo/public.key
 
+      - name: Sync add-repository.sh to gh-pages
+        run: |
+          set -eu
+          # add-repository.sh lives on main, but GitHub Pages only serves
+          # the gh-pages tree - keep the published copy in sync on every
+          # publish so https://.../add-repository.sh never goes stale/404s.
+          cp build-debian/add-repository.sh repo/add-repository.sh
+
       - name: Ingest + regenerate indices
         run: |
           build-debian/bin/publish-repo.sh repo incoming --gpg-key "${{ steps.gpg.outputs.key_id }}"
