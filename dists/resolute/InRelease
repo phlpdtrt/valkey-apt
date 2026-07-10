@@ -1,0 +1,50 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: amd64 arm64
+Codename: resolute
+Components: main
+Date: Fri, 10 Jul 2026 07:44:28 +0000
+Label: valkey-apt
+Origin: valkey-apt
+Suite: resolute
+MD5Sum:
+ 44acd34afc9880274173b449870882eb              154 Release
+ 07f9a4cf3e1e9807d9067993787bc11b            12019 main/binary-amd64/Packages
+ d1eabd801b6a4396af3db91656f3b1b7             2202 main/binary-amd64/Packages.gz
+ aa81b5ead4777509a5e19c6de0ee27f1            12019 main/binary-arm64/Packages
+ 576e5eb0f38abe532dd5c6e2f33bd14d             2194 main/binary-arm64/Packages.gz
+SHA1:
+ de3a5b5ac4e1653e99ee57306e8fb324a873b8fd              154 Release
+ f9161e4a6ec06908f7e1baac9940115f58792b42            12019 main/binary-amd64/Packages
+ 8453a320062b590f5a1ce6a9512b75fdd66843c0             2202 main/binary-amd64/Packages.gz
+ 071e45db20ced762ce92f2eea742afebc0604e0f            12019 main/binary-arm64/Packages
+ 4b3833a248f7b6dc0975a8d7f6b259ca9f2f3b4d             2194 main/binary-arm64/Packages.gz
+SHA256:
+ dac44a3b1aae0590c1146b07e7742e81847deac6413970c07d4b44336cf24677              154 Release
+ 5451a82c7a0bbccd855b2cc3ef6ae068a8436c6428c9fb009e6a749a3c1f5848            12019 main/binary-amd64/Packages
+ e8e5ebbba550c0854b1ddc9b2032b9aed1eaeb32c9e2522ff40bbd1a48c0ad93             2202 main/binary-amd64/Packages.gz
+ 952c39f5e016df706597bf41b9954cb73757d800856e4f685ff522482a2a4ea0            12019 main/binary-arm64/Packages
+ 011d1112a0ef1adafbcf5586a8c9d732ca5d8c4b8bc2ee9651347f11df5f4912             2194 main/binary-arm64/Packages.gz
+SHA512:
+ edcbc8635ea18f1617de94298f5dc9a6d1a5670f6df906435265c8992563789cbdeaade9d8e0d8ad51301f718f65de9f3410f7bc2f1acdaceb17e469de1490f2              154 Release
+ 2d2d2d92a91bf8c89190582ea7a766c37897ade9880e7fc0959321c01ba188e60920a6e81d2cd2e20b9791b1bc749895414821509c41386907313357d3437b80            12019 main/binary-amd64/Packages
+ b05808c54974b11d864ff16202c30de3ac2a684e0f9002692c6042d9a6406894a5471f3400befc514e6d2ebe6ad51050843fc1a5932a31f76ea49c8d4f69becb             2202 main/binary-amd64/Packages.gz
+ 64f3d870eeb86c484f52e12fc78ff31b4c3247506aefb95f118524d0fcba3128177419054ee3f217baa1c8e0cbf7601375cfc3a0a015db754d80edac7ee8b42a            12019 main/binary-arm64/Packages
+ 15bfc7e8cf582de67651d2523dbbfb7c93635f6cc6ce8d4909c11b74c48413cbe91e3c8774615a5bb54090c4e02f0057847711fc1239b0affca62b5b6d89512d             2194 main/binary-arm64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEFMFpuc/tO2ucQ0FIEKBJ6XnDyLgFAmpQotwACgkQEKBJ6XnD
+yLgtNBAAhJ9nIJ61LevjITc9LT8dmDWsf70ff886OhJYSHfBJ19Ady3RSK0JiHU6
++mOitMRP1oxjZebOIpNt/4riBqZVQiNM2vZ8WNYjcw26A4i8KlWco8wc5iFyUm2Y
+msAXiA3/d8DY04MFfCrHbc3iZdRb19MaNtGmYbwnNIGeHFdJzzBDqVgnjeSRY1uc
+bxsCc4irSZ0vEf2hfoiqIwW6yhGfU9WBiqfC3MpLhMGo/Bh4noQm30DmIfz6MI0u
+N/JAIi3uoLyD4zrhpfn06chxXUj1mytExO7g6nwbRxnR8thQdxexpUp1BAuUREGh
+2nKx3HVgQX3gQaZJJkxD0ABdPL66l1hvuGAfm9NdF2HnNwMHNZofIWvrdX875a9r
+dTiE7saLTaeA20rjrpX5kwaFaxlYxqRuEPN5ktbT9x9Qx2LjKBKYnMhw4CTctkkI
+29Mkk7uWaYO/hOVT2lOrLBhUAynNj4OLXzZ0GnDIeLQoOkxHhs7uCPhuhAVsi6fa
+nB4XVSG9VBRW8WCg94k8JkWUFAnCGTROYxI1zarOohIxljFDy7WdmFFZerbo6R0b
+9xsEFy+d6L1LA40uWsxqnwdXMrZXYLPbxKUZQ7OOqMSNBGkYoKcXBZwWMuoFpBrk
+aaV4caInNlcVqioVx4hxkU8Bu6Y1UenWZzDqToAPrR+EI9qoauU=
+=OIKP
+-----END PGP SIGNATURE-----
