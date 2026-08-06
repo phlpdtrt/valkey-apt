@@ -149,8 +149,13 @@ for codename in $CODENAMES; do
         release "dists/$codename" > "dists/$codename/Release" )
 
     if [ -n "$GPG_KEY" ]; then
-        gpg --default-key "$GPG_KEY" -abs -o "$dist_dir/Release.gpg" "$dist_dir/Release"
-        gpg --default-key "$GPG_KEY" -abs --clearsign -o "$dist_dir/InRelease" "$dist_dir/Release"
+        # --batch --pinentry-mode loopback --yes: without these, gpg-agent
+        # still tries to launch pinentry (even for a no-passphrase key) and
+        # fails with "cannot open '/dev/tty'" on a CI runner with no TTY.
+        gpg --batch --pinentry-mode loopback --yes \
+            --default-key "$GPG_KEY" -abs -o "$dist_dir/Release.gpg" "$dist_dir/Release"
+        gpg --batch --pinentry-mode loopback --yes \
+            --default-key "$GPG_KEY" -abs --clearsign -o "$dist_dir/InRelease" "$dist_dir/Release"
     else
         echo "No --gpg-key given - $codename left unsigned (fine for a local dry run only)" >&2
     fi
