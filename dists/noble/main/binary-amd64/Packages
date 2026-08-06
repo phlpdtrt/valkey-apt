@@ -1,5 +1,28 @@
 Package: valkey-sentinel
 Source: valkey
+Version: 8.0.10-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 83
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 8.0.10-1~noble1)
+Filename: pool/main/v/valkey/valkey-sentinel_8.0.10-1~noble1_amd64.deb
+Size: 28972
+MD5sum: d4dd8971b21067686062ff0d0ef28fa0
+SHA1: 480f987b82d463d091581164cb3c3e435ccf2f88
+SHA256: 57a98d2bca050d94f98508c88fbfed84a1767b598649f5c75ddd18f2a8f8c459
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (monitoring)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the Valkey Sentinel monitoring software.
+
+Package: valkey-sentinel
+Source: valkey
 Version: 8.0.9-1~noble1
 Architecture: amd64
 Maintainer: Philipp Dittert <p.dittert@techdivision.com>
@@ -46,6 +69,29 @@ Description: Persistent key-value database with network interface (monitoring)
 
 Package: valkey-sentinel
 Source: valkey
+Version: 8.1.9-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 79
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 8.1.9-1~noble1)
+Filename: pool/main/v/valkey/valkey-sentinel_8.1.9-1~noble1_amd64.deb
+Size: 24860
+MD5sum: 3b5f8cbccc422447d496695130f1e995
+SHA1: c1e599141e5ef2a899653bb3f3896e587636d1d9
+SHA256: de7bb937f4a770de618a48a0e53cae0ca9e18fe8a07ad8bae83ee49ce35546a9
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (monitoring)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the Valkey Sentinel monitoring software.
+
+Package: valkey-sentinel
+Source: valkey
 Version: 9.0.4-1~noble1
 Architecture: amd64
 Maintainer: Philipp Dittert <p.dittert@techdivision.com>
@@ -57,6 +103,29 @@ Size: 23906
 MD5sum: 856ec32c42c15f887c055ee0b77f4ed5
 SHA1: f9d3c9a6622add213156cc811f2ca5442f2b22b7
 SHA256: e12395618a87d4a8f2635adda2e9803cb77accaf8cba3a3b200eca915c725cf6
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (monitoring)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the Valkey Sentinel monitoring software.
+
+Package: valkey-sentinel
+Source: valkey
+Version: 9.0.5-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 81
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 9.0.5-1~noble1)
+Filename: pool/main/v/valkey/valkey-sentinel_9.0.5-1~noble1_amd64.deb
+Size: 26608
+MD5sum: 4987715b712d4cbef98b7832c678eb0b
+SHA1: 416e09399ccc2b59f9a3864021becc1ccadd3a07
+SHA256: bb35d4204ee971dfd24aa4c3c53fd37223ae9af78cf51a2e60d208f37b248a9f
 Section: database
 Priority: optional
 Homepage: https://valkey.io
@@ -89,6 +158,57 @@ Description: Persistent key-value database with network interface (monitoring)
  manipulating and querying data structures such as lists and sets.
  .
  This package contains the Valkey Sentinel monitoring software.
+
+Package: valkey-sentinel
+Source: valkey
+Version: 9.1.1-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 77
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 9.1.1-1~noble1)
+Filename: pool/main/v/valkey/valkey-sentinel_9.1.1-1~noble1_amd64.deb
+Size: 22760
+MD5sum: 886c20b7d1c805f7af18e0369ec3151e
+SHA1: 78ee884bda72bc2085eb986adf1526371bc973ba
+SHA256: 135c38be9d365d056ca6d9650bf7b3d37d7e0d6a91cbefeda7b3c1f7baad1ca4
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (monitoring)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the Valkey Sentinel monitoring software.
+
+Package: valkey-server
+Source: valkey
+Version: 8.0.10-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 183
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 8.0.10-1~noble1)
+Provides: valkey
+Filename: pool/main/v/valkey/valkey-server_8.0.10-1~noble1_amd64.deb
+Size: 61930
+MD5sum: 639e08db3c2e43972d68855e6da2baac
+SHA1: d191db286873f4907f6c5c8b280b73103ce7bcdd
+SHA256: b8fbb0cc5efda50983f9ebc50a208afeb8c53787fc0ded3f371fb4c068d98cdf
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ The dataset is stored entirely in memory and periodically flushed to disk.
+ .
+ This build is one of several parallel Valkey major.minor release lines
+ tracked by this repository (see /usr/share/doc/valkey-tools/README.Debian.gz
+ or the project README for the pinning mechanism used to select a line).
 
 Package: valkey-server
 Source: valkey
@@ -148,6 +268,34 @@ Description: Persistent key-value database with network interface
 
 Package: valkey-server
 Source: valkey
+Version: 8.1.9-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 187
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 8.1.9-1~noble1)
+Provides: valkey
+Filename: pool/main/v/valkey/valkey-server_8.1.9-1~noble1_amd64.deb
+Size: 60984
+MD5sum: e4a43720a3be2309451af8683c65dd60
+SHA1: a0c8b717dd316da672025959f7d9c34ecae1256a
+SHA256: 4fd69e84616a0761af72ce3a8bae4361b8b9e1034f0d178aa9c02da5daba3122
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ The dataset is stored entirely in memory and periodically flushed to disk.
+ .
+ This build is one of several parallel Valkey major.minor release lines
+ tracked by this repository (see /usr/share/doc/valkey-tools/README.Debian.gz
+ or the project README for the pinning mechanism used to select a line).
+
+Package: valkey-server
+Source: valkey
 Version: 9.0.4-1~noble1
 Architecture: amd64
 Maintainer: Philipp Dittert <p.dittert@techdivision.com>
@@ -160,6 +308,34 @@ Size: 61216
 MD5sum: cd23025f22629217e370a5db1a552a41
 SHA1: 7342e721ca38bf1ab7d2083278868f35678af823
 SHA256: b42fcd5a2f7774f39c0b391f683d5f5e5dfafd1e4a22dc4ae7c5e7cd53a6c704
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ The dataset is stored entirely in memory and periodically flushed to disk.
+ .
+ This build is one of several parallel Valkey major.minor release lines
+ tracked by this repository (see /usr/share/doc/valkey-tools/README.Debian.gz
+ or the project README for the pinning mechanism used to select a line).
+
+Package: valkey-server
+Source: valkey
+Version: 9.0.5-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 194
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 9.0.5-1~noble1)
+Provides: valkey
+Filename: pool/main/v/valkey/valkey-server_9.0.5-1~noble1_amd64.deb
+Size: 63912
+MD5sum: bd0f3f4c4f43371308a00b9dce21e519
+SHA1: 52a52f92934db7c781ec884102addc42bc473275
+SHA256: 98f7168fa858d5ca037853aca39479ea2b4be47db140318b6fa26ca68ececdf5
 Section: database
 Priority: optional
 Homepage: https://valkey.io
@@ -201,6 +377,57 @@ Description: Persistent key-value database with network interface
  This build is one of several parallel Valkey major.minor release lines
  tracked by this repository (see /usr/share/doc/valkey-tools/README.Debian.gz
  or the project README for the pinning mechanism used to select a line).
+
+Package: valkey-server
+Source: valkey
+Version: 9.1.1-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 195
+Pre-Depends: init-system-helpers (>= 1.54~)
+Depends: valkey-tools (= 9.1.1-1~noble1)
+Provides: valkey
+Filename: pool/main/v/valkey/valkey-server_9.1.1-1~noble1_amd64.deb
+Size: 61558
+MD5sum: 34dacb34f14ce1d8a0a47a96e60bd372
+SHA1: 6093e63ca46a1bac128e27311c4b095c8a52c371
+SHA256: 1a804f3123039e9e132dcfd932669d567f9c468d4422465505060cb2477b35df
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ The dataset is stored entirely in memory and periodically flushed to disk.
+ .
+ This build is one of several parallel Valkey major.minor release lines
+ tracked by this repository (see /usr/share/doc/valkey-tools/README.Debian.gz
+ or the project README for the pinning mechanism used to select a line).
+
+Package: valkey-tools
+Source: valkey
+Version: 8.0.10-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 6695
+Depends: adduser, libatomic1 (>= 4.8), libc6 (>= 2.38), libjemalloc2 (>= 4.0.0), liblzf1 (>= 1.5), libssl3t64 (>= 3.0.0), libsystemd0
+Suggests: ruby-redis
+Filename: pool/main/v/valkey/valkey-tools_8.0.10-1~noble1_amd64.deb
+Size: 1267632
+MD5sum: 9d889b0371f2dff30f2700d096a28d1a
+SHA1: 7eddba9ee7acfdcb84e8ce8474c57271bb549afb
+SHA256: 14dc29035e5edaa8c9159a10a8208ff3ebc6b9b0951428cd7adbc49f30808c9f
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (client)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the command line client and other tools.
 
 Package: valkey-tools
 Source: valkey
@@ -250,6 +477,29 @@ Description: Persistent key-value database with network interface (client)
 
 Package: valkey-tools
 Source: valkey
+Version: 8.1.9-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 6875
+Depends: adduser, libatomic1 (>= 4.8), libc6 (>= 2.38), libjemalloc2 (>= 4.0.0), liblzf1 (>= 1.5), libssl3t64 (>= 3.0.0), libsystemd0
+Suggests: ruby-redis
+Filename: pool/main/v/valkey/valkey-tools_8.1.9-1~noble1_amd64.deb
+Size: 1295494
+MD5sum: 23eba7e540ce92fe1cafe6e8d47c0766
+SHA1: 412f48840e127ea04486f7610cf92afd8c5ac40a
+SHA256: 6d66857f7b0849523b8e591015a489560405ebefad52f98ca06e0c555527f405
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (client)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the command line client and other tools.
+
+Package: valkey-tools
+Source: valkey
 Version: 9.0.4-1~noble1
 Architecture: amd64
 Maintainer: Philipp Dittert <p.dittert@techdivision.com>
@@ -273,6 +523,29 @@ Description: Persistent key-value database with network interface (client)
 
 Package: valkey-tools
 Source: valkey
+Version: 9.0.5-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 7378
+Depends: adduser, libatomic1 (>= 4.8), libc6 (>= 2.38), libjemalloc2 (>= 4.0.0), liblzf1 (>= 1.5), libssl3t64 (>= 3.0.0), libsystemd0
+Suggests: ruby-redis
+Filename: pool/main/v/valkey/valkey-tools_9.0.5-1~noble1_amd64.deb
+Size: 1377168
+MD5sum: 928f824b42ff8370bec68f6e47d8b26d
+SHA1: 0d115dd3c8543843b1f12f041b6abd5e3d7442ce
+SHA256: baa45ce09788587d46697c7c62db7060a806261220b487dd1003305154b3cec1
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (client)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the command line client and other tools.
+
+Package: valkey-tools
+Source: valkey
 Version: 9.1.0-1~noble1
 Architecture: amd64
 Maintainer: Philipp Dittert <p.dittert@techdivision.com>
@@ -284,6 +557,29 @@ Size: 1457532
 MD5sum: f492c6d89f3571cba7d2ce7c22266cea
 SHA1: bec39f903d3fab4d52b8b91b7f43be8086ecc6ef
 SHA256: cb9e5b133a87e4709fb4f56292d1fa0c9b286f4907ebb191b05bb5e4ffb84594
+Section: database
+Priority: optional
+Homepage: https://valkey.io
+Description: Persistent key-value database with network interface (client)
+ Valkey is a key-value database in a similar vein to memcache but the dataset
+ is non-volatile. Valkey additionally provides native support for atomically
+ manipulating and querying data structures such as lists and sets.
+ .
+ This package contains the command line client and other tools.
+
+Package: valkey-tools
+Source: valkey
+Version: 9.1.1-1~noble1
+Architecture: amd64
+Maintainer: Philipp Dittert <p.dittert@techdivision.com>
+Installed-Size: 7782
+Depends: adduser, libatomic1 (>= 4.8), libc6 (>= 2.38), libjemalloc2 (>= 4.0.0), liblzf1 (>= 1.5), libssl3t64 (>= 3.0.0), libsystemd0
+Suggests: ruby-redis
+Filename: pool/main/v/valkey/valkey-tools_9.1.1-1~noble1_amd64.deb
+Size: 1464382
+MD5sum: 57dc694933e3e121c8c832cd84bbac8d
+SHA1: c92e7cb8673451d56d222011fc617a23cbe71597
+SHA256: 7732856ef45868d91dcc349cc899eef3dd4e7c5e1e4e35a5c1ff2b7f4c24e498
 Section: database
 Priority: optional
 Homepage: https://valkey.io
