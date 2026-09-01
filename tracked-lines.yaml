@@ -1,22 +1,22 @@
 default: '9.1'
 lines:
   '9.1':
-    tag: 9.1.1
+    tag: 9.1.2
     debian_revision: 1
     status: active
     lts: false
   '9.0':
-    tag: 9.0.5
+    tag: 9.0.6
     debian_revision: 1
     status: active
     lts: false
   '8.1':
-    tag: 8.1.9
+    tag: 8.1.10
     debian_revision: 1
     status: active
     lts: false
   '8.0':
-    tag: 8.0.10
+    tag: 8.0.11
     debian_revision: 1
     status: active
     lts: false
