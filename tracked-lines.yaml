@@ -1,7 +1,7 @@
 default: '9.1'
 lines:
   '9.1':
-    tag: 9.1.3
+    tag: 9.1.4
     debian_revision: 1
     status: active
     lts: false
@@ -11,12 +11,12 @@ lines:
     status: active
     lts: false
   '8.1':
-    tag: 8.1.11
+    tag: 8.1.12
     debian_revision: 1
     status: active
     lts: false
   '8.0':
-    tag: 8.0.12
+    tag: 8.0.13
     debian_revision: 1
     status: active
     lts: false
