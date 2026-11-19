@@ -6,7 +6,7 @@ lines:
     status: active
     lts: false
   '9.0':
-    tag: 9.0.7
+    tag: 9.0.8
     debian_revision: 1
     status: active
     lts: false
